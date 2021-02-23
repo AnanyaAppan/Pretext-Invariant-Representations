@@ -12,7 +12,8 @@ from utils import (AverageMeter, Logger, Memory, ModelCheckpoint,
                    NoiseContrastiveEstimator, Progbar, pil_loader)
 
 device = torch.device('cuda:0')
-data_dir = '/media/dysk/datasets/isic_challenge_2017/train'
+data_dir = '../SSBD/ssbd_clip_segment/'
+
 negative_nb = 1000  # number of negative examples in NCE
 lr = 0.001
 checkpoint_dir = 'jigsaw_models'
@@ -21,7 +22,7 @@ log_filename = 'pretraining_log_jigsaw'
 
 class JigsawLoader(DatasetFolder):
     def __init__(self, root_dir):
-        super(JigsawLoader, self).__init__(root_dir, pil_loader, extensions=('jpg'))
+        super(JigsawLoader, self).__init__(root_dir, pil_loader, extensions=('jpg','png'))
         self.root_dir = root_dir
         self.color_transform = torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.4)
         self.flips = [torchvision.transforms.RandomHorizontalFlip(), torchvision.transforms.RandomVerticalFlip()]
@@ -37,7 +38,7 @@ class JigsawLoader(DatasetFolder):
         path, _ = self.samples[index]
         original = self.loader(path)
         image = torchvision.transforms.Resize((224, 224))(original)
-        sample = torchvision.transforms.RandomCrop((255, 255))(original)
+        sample = torchvision.transforms.RandomCrop((255, 255),pad_if_needed=True)(original)
 
         crop_areas = [(i*85, j*85, (i+1)*85, (j+1)*85) for i in range(3) for j in range(3)]
         samples = [sample.crop(crop_area) for crop_area in crop_areas]
