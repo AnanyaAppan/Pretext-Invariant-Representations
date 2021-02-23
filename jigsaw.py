@@ -12,7 +12,7 @@ from utils import (AverageMeter, Logger, Memory, ModelCheckpoint,
                    NoiseContrastiveEstimator, Progbar, pil_loader)
 
 device = torch.device('cuda:0')
-data_dir = '../SSBD/ssbd_clip_segment/'
+data_dir = '../../SSBD/ssbd_clip_segment/'
 
 negative_nb = 1000  # number of negative examples in NCE
 lr = 0.001
