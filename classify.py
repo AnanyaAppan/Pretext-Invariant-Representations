@@ -23,9 +23,9 @@ class SSBDataset(Dataset):
         self._add_videos()
 
     def _add_videos(self):
-        self.arm_flapping_videos = [sorted(glob.glob(j + '/*.png'))[:5] for j in sorted(glob.glob(self.video_path+'ArmFlapping/*'))]
-        self.head_banging_videos = [sorted(glob.glob(j + '/*.png'))[:5] for j in sorted(glob.glob(self.video_path+'HeadBanging/*'))]
-        self.spinning_videos = [sorted(glob.glob(j + '/*.png'))[:5] for j in sorted(glob.glob(self.video_path+'Spinning/*'))]
+        self.arm_flapping_videos = [sorted(glob.glob(j + '/*.png')) for j in sorted(glob.glob(self.video_path+'ArmFlapping/*'))]
+        self.head_banging_videos = [sorted(glob.glob(j + '/*.png')) for j in sorted(glob.glob(self.video_path+'HeadBanging/*'))]
+        self.spinning_videos = [sorted(glob.glob(j + '/*.png')) for j in sorted(glob.glob(self.video_path+'Spinning/*'))]
         self.arm_flapping_videos = list(zip(self.arm_flapping_videos,[0]*len(self.arm_flapping_videos)))
         self.head_banging_videos = list(zip(self.head_banging_videos,[1]*len(self.head_banging_videos)))
         self.spinning_videos = list(zip(self.spinning_videos,[1]*len(self.spinning_videos)))
@@ -63,7 +63,9 @@ class ClassifyLSTM(nn.Module):
     def forward(self, x):
         batch_sz, seq_len, c, h, w = x.shape
         ii = 0
+        print("hi1!")
         y = self.baseModel((x[:,ii]))
+        print("hi2!")
         out, (hn, cn) = self.lstm_layer(y.unsqueeze(1))
         for ii in range(1, seq_len):
             y = self.baseModel((x[:,ii]))
@@ -86,6 +88,7 @@ for epoch in range(2):
         videos, labels = data
         videos = videos.to(device)
         labels = labels.to(device)
+        print("hi3!")
         pred = lstm_model(videos)
         step_loss = criterion(pred,labels)
         optimizer.zero_grad()
