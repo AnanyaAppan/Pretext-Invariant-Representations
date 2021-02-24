@@ -13,7 +13,7 @@ from PIL import Image
 from jigsaw import Network
 import glob
 
-device = torch.device('cuda:0')
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class SSBDataset(Dataset):
     def __init__(self, video_path='../../SSBD/ssbd_clip_segment/'):
