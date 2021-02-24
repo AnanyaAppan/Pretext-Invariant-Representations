@@ -55,6 +55,7 @@ class ClassifyLSTM(nn.Module):
         
         self.baseModel = Network().to(device)
         self.baseModel.train(False)
+        baseModel.load_state_dict("../jigsaw_models/epoch_585")
         self.dropout = nn.Dropout(dr_rate)
         self.lstm_layer = nn.LSTM(128, 256, 1)
         self.fc1 = nn.Linear(256, 3)
