@@ -60,10 +60,11 @@ class ClassifyLSTM(nn.Module):
         rnn_num_layers = 1
         
         self.baseModel = Network().to(device)
-        # self.baseModel.load_state_dict(torch.load("../jigsaw_models/epoch_585"))
+        self.baseModel.load_state_dict(torch.load("../jigsaw_models/epoch_585"))
         self.dropout = nn.Dropout(dr_rate)
         self.lstm_layer = nn.LSTM(128, 256, 10)
-        self.fc1 = nn.Linear(256, 3)
+        self.fc1 = nn.Linear(256,128)
+        self.fc2 = nn.Linear(128, 3)
 
     def forward(self, x):
         batch_sz, seq_len, c, h, w = x.shape
@@ -75,6 +76,8 @@ class ClassifyLSTM(nn.Module):
             out, (hn, cn) = self.lstm_layer(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:,-1])
         out = self.fc1(out) 
+        out = self.dropout(out)
+        out = self.fc2(out)
         return out 
         
 lstm_model = ClassifyLSTM().to(device)
