@@ -81,7 +81,7 @@ lstm_model = ClassifyLSTM().to(device)
 for name, param in lstm_model.named_parameters():
     if param.requires_grad:
         if 'baseModel' in name : param.requires_grad = False
-optimizer = optim.SGD(lstm_model.parameters(), lr=0.01, momentum=0.9)
+optimizer = optim.SGD(lstm_model.parameters(), lr=1e-4, momentum=0.9)
 criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
 checkpoint_save_folder = "./classify/"
@@ -92,12 +92,14 @@ for epoch in range(50):
     time1 = time.time()
     total = 0
     correct = 0
+    running_loss = 0
     for i, data in enumerate(trainloader, 0) :
         videos, labels = data
         videos = videos.to(device)
         labels = labels.to(device)
         pred = lstm_model(videos)
         step_loss = criterion(pred,labels)
+        running_loss += step_loss
         # pred = torch.reshape(pred, (1, pred.shape[1]))
         _, predicted = torch.max(pred.data, 1)
         total += labels.size(0)
@@ -121,5 +123,5 @@ for epoch in range(50):
     step_loss = checkpoint['loss']
     print("loaded model...")
     print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
-    print('loss{}'.format(step_loss.item()))
+    print('loss{}'.format(running_loss.item()/len(train_loader)))
     print('accuracy{}'.format(100 * float(correct) / total))
