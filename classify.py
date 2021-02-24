@@ -65,7 +65,7 @@ class ClassifyLSTM(nn.Module):
         self.lstm_layer = nn.LSTM(128, 256, 10)
         self.fc1 = nn.Linear(256,128)
         self.fc2 = nn.Linear(128,64)
-        self.fc2 = nn.Linear(64, 3)
+        self.fc3 = nn.Linear(64, 3)
 
     def forward(self, x):
         batch_sz, seq_len, c, h, w = x.shape
