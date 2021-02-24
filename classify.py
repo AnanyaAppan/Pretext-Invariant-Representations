@@ -86,7 +86,7 @@ checkpoint_save_folder = "./classify/"
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=8)
 total = 0
 correct = 0
-for epoch in range(2):
+for epoch in range(50):
     print("Epoch = ", epoch)
     lstm_model.train()
     time1 = time.time()
@@ -96,6 +96,10 @@ for epoch in range(2):
         labels = labels.to(device)
         pred = lstm_model(videos)
         step_loss = criterion(pred,labels)
+        pred = torch.reshape(pred, (1, pred.shape[0]))
+        _, predicted = torch.max(pred.data, 1)
+        total += labels.size(0)
+        correct += (predicted.cpu() == labels).sum().item()
         optimizer.zero_grad()
         step_loss.backward()
         optimizer.step()
@@ -116,3 +120,4 @@ for epoch in range(2):
     print("loaded model...")
     print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
     print('loss{}'.format(step_loss.item()))
+    print('accuracy{}'.format(100 * float(correct) / total))
