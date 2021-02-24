@@ -64,7 +64,8 @@ class ClassifyLSTM(nn.Module):
         self.dropout = nn.Dropout(dr_rate)
         self.lstm_layer = nn.LSTM(128, 256, 10)
         self.fc1 = nn.Linear(256,128)
-        self.fc2 = nn.Linear(128, 3)
+        self.fc2 = nn.Linear(128,64)
+        self.fc2 = nn.Linear(64, 3)
 
     def forward(self, x):
         batch_sz, seq_len, c, h, w = x.shape
@@ -78,6 +79,8 @@ class ClassifyLSTM(nn.Module):
         out = self.fc1(out) 
         out = self.dropout(out)
         out = self.fc2(out)
+        out = self.dropout(out)
+        out = self.fc3(out)
         return out 
         
 lstm_model = ClassifyLSTM().to(device)
