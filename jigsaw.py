@@ -104,53 +104,54 @@ class Network(nn.Module):
         if mode == 1:
             return self.return_reduced_image_patches_features(images, patches)
 
+if __name__ == "__main__":
 
-net = Network().to(device)
-optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+    net = Network().to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
 
-memory = Memory(size=len(dataset), weight=0.5, device=device)
-memory.initialize(net, train_loader)
+    memory = Memory(size=len(dataset), weight=0.5, device=device)
+    memory.initialize(net, train_loader)
 
 
-checkpoint = ModelCheckpoint(mode='min', directory=checkpoint_dir)
-noise_contrastive_estimator = NoiseContrastiveEstimator(device)
-logger = Logger(log_filename)
+    checkpoint = ModelCheckpoint(mode='min', directory=checkpoint_dir)
+    noise_contrastive_estimator = NoiseContrastiveEstimator(device)
+    logger = Logger(log_filename)
 
-loss_weight = 0.5
+    loss_weight = 0.5
 
-for epoch in range(1000):
-    print('\nEpoch: {}'.format(epoch))
-    memory.update_weighted_count()
-    train_loss = AverageMeter('train_loss')
-    bar = Progbar(len(train_loader), stateful_metrics=['train_loss', 'valid_loss'])
+    for epoch in range(1000):
+        print('\nEpoch: {}'.format(epoch))
+        memory.update_weighted_count()
+        train_loss = AverageMeter('train_loss')
+        bar = Progbar(len(train_loader), stateful_metrics=['train_loss', 'valid_loss'])
 
-    for step, batch in enumerate(train_loader):
+        for step, batch in enumerate(train_loader):
 
-        # prepare batch
-        images = batch['original'].to(device)
-        patches = [element.to(device) for element in batch['patches']]
-        index = batch['index']
-        representations = memory.return_representations(index).to(device).detach()
-        # zero grad
-        optimizer.zero_grad()
+            # prepare batch
+            images = batch['original'].to(device)
+            patches = [element.to(device) for element in batch['patches']]
+            index = batch['index']
+            representations = memory.return_representations(index).to(device).detach()
+            # zero grad
+            optimizer.zero_grad()
 
-        #forward, loss, backward, step
-        output = net(images=images, patches=patches, mode=1)
+            #forward, loss, backward, step
+            output = net(images=images, patches=patches, mode=1)
 
-        loss_1 = noise_contrastive_estimator(representations, output[1], index, memory, negative_nb=negative_nb)
-        loss_2 = noise_contrastive_estimator(representations, output[0], index, memory, negative_nb=negative_nb)
-        loss = loss_weight * loss_1 + (1 - loss_weight) * loss_2
+            loss_1 = noise_contrastive_estimator(representations, output[1], index, memory, negative_nb=negative_nb)
+            loss_2 = noise_contrastive_estimator(representations, output[0], index, memory, negative_nb=negative_nb)
+            loss = loss_weight * loss_1 + (1 - loss_weight) * loss_2
 
-        loss.backward()
-        optimizer.step()
+            loss.backward()
+            optimizer.step()
 
-        # update representation memory
-        memory.update(index, output[0].detach().cpu().numpy())
+            # update representation memory
+            memory.update(index, output[0].detach().cpu().numpy())
 
-        # update metric and bar
-        train_loss.update(loss.item(), images.shape[0])
-        bar.update(step, values=[('train_loss', train_loss.return_avg())])
-    logger.update(epoch, train_loss.return_avg())
+            # update metric and bar
+            train_loss.update(loss.item(), images.shape[0])
+            bar.update(step, values=[('train_loss', train_loss.return_avg())])
+        logger.update(epoch, train_loss.return_avg())
 
-    # save model if improved
-    checkpoint.save_model(net, train_loss.return_avg(), epoch)
+        # save model if improved
+        checkpoint.save_model(net, train_loss.return_avg(), epoch)
