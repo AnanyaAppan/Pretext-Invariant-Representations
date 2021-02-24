@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import time
+import os
 from skimage import io
 from PIL import Image
 from jigsaw import Network
