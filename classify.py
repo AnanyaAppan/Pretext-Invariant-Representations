@@ -71,7 +71,7 @@ class ClassifyLSTM(nn.Module):
 optimizer = optim.SGD(lstm_model.parameters(), lr=0.01, momentum=0.9)
 criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
-net = ClassifyLSTM().to(device)
+lstm_model = ClassifyLSTM().to(device)
 checkpoint_save_folder = "./classify/"
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=8)
 for epoch in range(2):
