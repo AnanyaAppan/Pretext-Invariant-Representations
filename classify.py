@@ -63,6 +63,7 @@ class ClassifyLSTM(nn.Module):
         ii = 0
         y = self.baseModel((x[:,ii]))
         output, (hn, cn) = self.lstm_layer(y.unsqueeze(1))
+        print(seq_len)
         for ii in range(1, seq_len):
             y = self.baseModel((x[:,ii]))
             out, (hn, cn) = self.lstm_layer(y.unsqueeze(1), (hn, cn))
