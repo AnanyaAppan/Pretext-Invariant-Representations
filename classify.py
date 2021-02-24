@@ -123,5 +123,5 @@ for epoch in range(50):
     step_loss = checkpoint['loss']
     print("loaded model...")
     print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
-    print('loss{}'.format(running_loss/len(train_loader)))
+    print('loss{}'.format(running_loss/len(trainloader)))
     print('accuracy{}'.format(100 * float(correct) / total))
