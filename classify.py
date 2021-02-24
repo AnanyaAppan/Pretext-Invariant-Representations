@@ -99,7 +99,7 @@ for epoch in range(50):
         # pred = torch.reshape(pred, (1, pred.shape[1]))
         _, predicted = torch.max(pred.data, 1)
         total += labels.size(0)
-        correct += (predicted.cpu() == labels).sum().item()
+        correct += (predicted == labels).sum().item()
         optimizer.zero_grad()
         step_loss.backward()
         optimizer.step()
