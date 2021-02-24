@@ -85,7 +85,7 @@ for epoch in range(2):
         videos = videos.to(device)
         labels = labels.to(device)
         pred = lstm_model(videos)
-        loss = criterion(pred,labels)
+        step_loss = criterion(pred,labels)
         optimizer.zero_grad()
         step_loss.backward()
         optimizer.step()
