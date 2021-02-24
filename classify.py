@@ -96,7 +96,7 @@ for epoch in range(50):
         labels = labels.to(device)
         pred = lstm_model(videos)
         step_loss = criterion(pred,labels)
-        pred = torch.reshape(pred, (1, pred.shape[0]))
+        # pred = torch.reshape(pred, (1, pred.shape[1]))
         _, predicted = torch.max(pred.data, 1)
         total += labels.size(0)
         correct += (predicted.cpu() == labels).sum().item()
