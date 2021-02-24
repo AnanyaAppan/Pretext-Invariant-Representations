@@ -86,12 +86,12 @@ criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
 checkpoint_save_folder = "./classify/"
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=8)
-total = 0
-correct = 0
 for epoch in range(50):
     print("Epoch = ", epoch)
     lstm_model.train()
     time1 = time.time()
+    total = 0
+    correct = 0
     for i, data in enumerate(trainloader, 0) :
         videos, labels = data
         videos = videos.to(device)
