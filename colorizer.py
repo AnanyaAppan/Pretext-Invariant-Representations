@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-from .submodule import one_hot
+from submodule import one_hot
 from spatial_correlation_sampler import SpatialCorrelationSampler
 
 class Colorizer(nn.Module):
