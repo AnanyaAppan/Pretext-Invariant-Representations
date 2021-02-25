@@ -8,7 +8,7 @@ from colorizer import Colorizer
 import numpy as np
 
 class CorrFlow(nn.Module):
-    def __init__(self, args):
+    def __init__(self):
         super(CorrFlow, self).__init__()
 
         # Model options
