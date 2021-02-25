@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 
 import math
-from submodule import ResNet18
-from colorizer import Colorizer
+from .submodule import ResNet18
+from .colorizer import Colorizer
 
 import numpy as np
 
