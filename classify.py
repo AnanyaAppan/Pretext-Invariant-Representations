@@ -84,11 +84,13 @@ class ClassifyLSTM(nn.Module):
         return out 
         
 lstm_model = ClassifyLSTM().to(device)
-lstm_model.load_state_dict(torch.load("../classify/epoch_49.pth"))
 for name, param in lstm_model.named_parameters():
     if param.requires_grad:
         if 'baseModel' in name : param.requires_grad = False
 optimizer = optim.SGD(lstm_model.parameters(), lr=1e-4, momentum=0.9)
+checkpoint = torch.load("../classify/epoch_49.pth")
+lstm_model.load_state_dict(checkpoint['model_state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
 checkpoint_save_folder = "../classify/"
