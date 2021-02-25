@@ -11,7 +11,7 @@ import time
 import os
 from skimage import io
 from PIL import Image
-from corrflow import CorrFlow
+from module.corrflow import CorrFlow
 import glob
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
