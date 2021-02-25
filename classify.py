@@ -60,7 +60,7 @@ class ClassifyLSTM(nn.Module):
         rnn_num_layers = 1
         
         self.baseModel = Network().to(device)
-        self.baseModel.load_state_dict(torch.load("../jigsaw_models/epoch_585"))
+        self.baseModel.load_state_dict(torch.load("../jigsaw_models/epoch_584"))
         self.dropout = nn.Dropout(dr_rate)
         self.lstm_layer = nn.LSTM(128, 256, 10)
         self.fc1 = nn.Linear(256,128)
@@ -84,15 +84,16 @@ class ClassifyLSTM(nn.Module):
         return out 
         
 lstm_model = ClassifyLSTM().to(device)
+lstm_model.load_state_dict(torch.load("../classify/epoch_49.pth"))
 for name, param in lstm_model.named_parameters():
     if param.requires_grad:
         if 'baseModel' in name : param.requires_grad = False
 optimizer = optim.SGD(lstm_model.parameters(), lr=1e-4, momentum=0.9)
 criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
-checkpoint_save_folder = "./classify/"
+checkpoint_save_folder = "../classify/"
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=8)
-for epoch in range(50):
+for epoch in range(50,100):
     print("Epoch = ", epoch)
     lstm_model.train()
     time1 = time.time()
