@@ -136,9 +136,9 @@ for epoch in range(50):
     correct = 0
     running_loss = 0
     for i, data in enumerate(trainloader, 0) :
-        videos, labels = data
-        videos = videos.to(device)
-        x_rgb, x_quantized = videos
+        x_rgb, x_quantized, labels = data
+        x_rgb = x_rgb.to(device)
+        x_quantized = x_quantized.to(device)
         labels = labels.to(device)
         pred = lstm_model(x_rgb,x_quantized)
         step_loss = criterion(pred,labels)
