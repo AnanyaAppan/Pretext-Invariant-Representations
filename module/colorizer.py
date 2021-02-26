@@ -27,14 +27,11 @@ class Colorizer(nn.Module):
         return x
 
     def forward(self, feats_r, feats_t, quantized_r):
-        print("in forward of colorizer")
         b,c,h,w = quantized_r.size()
 
         r = self.prep(quantized_r)
-        print("finished prep")
         r = F.pad(r, (self.R,self.R,self.R,self.R), mode='replicate')
-        print("finsihed padding")
-        corr = self.correlation_sampler(feats_t, feats_r)
+        corr = self.correlation_sampler(feats_t.cpu(), feats_r.cpu())
         _,_,_,h1,w1 = corr.size()
         print("got corr from correlation sampler")
         corr[corr == 0] = -1e10  # discount padding at edge for softmax
