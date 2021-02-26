@@ -33,13 +33,13 @@ class Colorizer(nn.Module):
         r = F.pad(r, (self.R,self.R,self.R,self.R), mode='replicate')
         corr = self.correlation_sampler(feats_t.cpu(), feats_r.cpu())
         _,_,_,h1,w1 = corr.size()
-        print("got corr from correlation sampler")
+        # print("got corr from correlation sampler")
         corr[corr == 0] = -1e10  # discount padding at edge for softmax
-        print("before colorizer reshape")
+        # print("before colorizer reshape")
         corr = corr.reshape([b, self.P*self.P, h1*w1])
         corr = F.softmax(corr, dim=1)
         corr = corr.unsqueeze(1)
-        print("before colorizer unfold")
+        # print("before colorizer unfold")
         image_uf = F.unfold(r, kernel_size=self.P)
         image_uf = image_uf.reshape([b,self.C,self.P*self.P,h1*w1])
 

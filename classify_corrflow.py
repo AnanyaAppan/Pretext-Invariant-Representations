@@ -94,21 +94,30 @@ class ClassifyLSTM(nn.Module):
             model_dict[key[7:]] = checkpoint[key]
         self.baseModel.load_state_dict(model_dict)
         self.dropout = nn.Dropout(dr_rate)
+        self.conv1 = nn.Conv2d(in_channels = 16,out_channels = 64,kernel_size = 4)
+        self.conv2 = nn.Conv2d(in_channels = 64,out_channels = 128,kernel_size = 4)
+        self.fc1 = nn.Linear(128*16*16,128)
         self.lstm_layer = nn.LSTM(128, 256, 10)
-        self.fc1 = nn.Linear(256,128)
-        self.fc2 = nn.Linear(128,64)
-        self.fc3 = nn.Linear(64, 3)
+        self.fc2 = nn.Linear(256,128)
+        self.fc3 = nn.Linear(128,64)
+        self.fc4 = nn.Linear(64, 3)
 
     def forward(self, x_rgb, x_quantized):
         batch_sz, seq_len, c, h, w = x_rgb.shape
         ii = 0
-        print("in forward!")
         y = self.baseModel((x_rgb[:,ii]),(x_quantized[:,ii]),(x_rgb[:,ii+1]))
-        print("got output of base model")
-        print(y.shape)
+        # print("got output of base model")
+        # torch.Size([1, 16, 64, 64])
+        # print(y.shape)
+        y = self.conv1(y)
+        y = self.conv2(y)
+        y = self.fc1(y)
         out, (hn, cn) = self.lstm_layer(y.unsqueeze(1))
         for ii in range(1, seq_len-1):
             y = self.baseModel((x_rgb[:,ii]),(x_quantized[:,ii]),(x_rgb[:,ii+1]))
+            y = self.conv1(y)
+            y = self.conv2(y)
+            y = self.fc1(y)
             out, (hn, cn) = self.lstm_layer(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:,-1])
         out = self.fc1(out) 
