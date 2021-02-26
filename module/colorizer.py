@@ -31,11 +31,12 @@ class Colorizer(nn.Module):
         b,c,h,w = quantized_r.size()
 
         r = self.prep(quantized_r)
+        print("finished prep")
         r = F.pad(r, (self.R,self.R,self.R,self.R), mode='replicate')
-
+        print("finsihed padding")
         corr = self.correlation_sampler(feats_t, feats_r)
         _,_,_,h1,w1 = corr.size()
-
+        print("got corr from correlation sampler")
         corr[corr == 0] = -1e10  # discount padding at edge for softmax
         print("before colorizer reshape")
         corr = corr.reshape([b, self.P*self.P, h1*w1])
