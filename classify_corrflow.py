@@ -96,7 +96,7 @@ class ClassifyLSTM(nn.Module):
         self.dropout = nn.Dropout(dr_rate)
         self.conv1 = nn.Conv2d(in_channels = 16,out_channels = 64,kernel_size = 4,stride=4)
         self.conv2 = nn.Conv2d(in_channels = 64,out_channels = 128,kernel_size = 4,stride=4)
-        self.fc1 = nn.Linear(128*16*16,128)
+        self.fc1 = nn.Linear(128*4*4,128)
         self.lstm_layer = nn.LSTM(128, 256, 10)
         self.fc2 = nn.Linear(256,128)
         self.fc3 = nn.Linear(128,64)
@@ -111,8 +111,7 @@ class ClassifyLSTM(nn.Module):
         # print(y.shape)
         y = self.conv1(y)
         y = self.conv2(y)
-        print(y.shape)
-        y = y.view(-1, 128 * 16 * 16)
+        y = y.view(-1, 128 * 4 * 4)
         y = self.fc1(y)
         out, (hn, cn) = self.lstm_layer(y.unsqueeze(1))
         for ii in range(1, seq_len-1):
