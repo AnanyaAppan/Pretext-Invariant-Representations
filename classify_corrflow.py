@@ -16,10 +16,44 @@ import glob
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+def resize_image(im, desired_size):
+    old_size = im.size  # old_size[0] is in (width, height) format
+    ratio = float(desired_size)/max(old_size)
+    new_size = tuple([int(x*ratio) for x in old_size])
+    new_im = Image.new("RGB", (desired_size, desired_size))
+    new_im.paste(im, ((desired_size-new_size[0])//2, (desired_size-new_size[1])//2))
+    return new_im
+
+
+def image_loader(path):
+    image = Image.load(path)
+    image = np.float32(image) / 255.0
+    image = resize_image(image,256)
+    # image = cv2.resize(image, (256, 256))
+    return image
+
+def quantized_color_preprocess(image, centroids):
+    h, w, c = image.shape
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
+    ab = image[:,:,1:]
+
+    a = np.argmin(np.linalg.norm(centroids[None, :, :] - ab.reshape([-1,2])[:, None, :], axis=2),axis=1)
+    # 256 256  quantized color (4bit)
+
+    quantized_ab = a.reshape([h, w, -1])
+    preprocess = transforms.ToTensor()
+    return preprocess(quantized_ab)
+
+def rgb_preprocess(image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    return transforms.ToTensor()(image)
+
 class SSBDataset(Dataset):
     def __init__(self, video_path='../../SSBD/ssbd_clip_segment/'):
         self.video_path = video_path
         self.normalize = torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        self.centroids = np.load('data/centroids_16k_kinetics_10000samples.npy')
         self._add_videos()
 
     def get_subset(self,arr):
@@ -42,14 +76,17 @@ class SSBDataset(Dataset):
 
     def __getitem__(self, idx):
         video, label = self.videos[idx]
-        video_ret = []
+        # video_ret = []
+        images_rgb, images_quantized = []
         for img_name in video :
-            image = Image.open(img_name)
-            image = torchvision.transforms.Resize((224, 224))(image)
-            image = torchvision.transforms.functional.to_tensor(image)
-            image = self.normalize(image)
-            video_ret.append(image)
-
+            image = image_loader(img_name)
+            images_rgb.append(rgb_preprocess(image))
+            images_quantized.append(quantized_color_preprocess(image,self.centroids))
+            # image = torchvision.transforms.Resize((224, 224))(image)
+            # image = torchvision.transforms.functional.to_tensor(image)
+            # image = self.normalize(image)
+            # video_ret.append(image)
+        video_ret = [images_rgb,images_quantized]
         return (torch.stack(video_ret),label)
 
 class ClassifyLSTM(nn.Module):
@@ -71,14 +108,14 @@ class ClassifyLSTM(nn.Module):
         self.fc2 = nn.Linear(128,64)
         self.fc3 = nn.Linear(64, 3)
 
-    def forward(self, x):
-        batch_sz, seq_len, c, h, w = x.shape
+    def forward(self, x_rgb, x_quantized):
+        batch_sz, seq_len, c, h, w = x_rgb.shape
         ii = 0
-        y = self.baseModel((x[:,ii]))
+        y = self.baseModel((x_rgb[:,ii]),(x_quantized[:,ii]),(x_rgb[:,ii+1]))
         print(y.shape)
         out, (hn, cn) = self.lstm_layer(y.unsqueeze(1))
-        for ii in range(1, seq_len):
-            y = self.baseModel((x[:,ii]))
+        for ii in range(1, seq_len-1):
+            y = self.baseModel((x_rgb[:,ii]),(x_quantized[:,ii]),(x_rgb[:,ii+1]))
             out, (hn, cn) = self.lstm_layer(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:,-1])
         out = self.fc1(out) 
@@ -110,8 +147,9 @@ for epoch in range(50):
     for i, data in enumerate(trainloader, 0) :
         videos, labels = data
         videos = videos.to(device)
+        x_rgb, x_quantized = videos
         labels = labels.to(device)
-        pred = lstm_model(videos)
+        pred = lstm_model(x_rgb,x_quantized)
         step_loss = criterion(pred,labels)
         running_loss += step_loss.item()
         # pred = torch.reshape(pred, (1, pred.shape[1]))
