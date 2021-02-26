@@ -77,7 +77,8 @@ class SSBDataset(Dataset):
     def __getitem__(self, idx):
         video, label = self.videos[idx]
         # video_ret = []
-        images_rgb, images_quantized = []
+        images_rgb = [] 
+        images_quantized = []
         for img_name in video :
             image = image_loader(img_name)
             images_rgb.append(rgb_preprocess(image))
