@@ -122,11 +122,11 @@ class ClassifyLSTM(nn.Module):
             y = self.fc1(y)
             out, (hn, cn) = self.lstm_layer(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:,-1])
-        out = self.fc1(out) 
-        out = self.dropout(out)
-        out = self.fc2(out)
+        out = self.fc2(out) 
         out = self.dropout(out)
         out = self.fc3(out)
+        out = self.dropout(out)
+        out = self.fc4(out)
         return out 
         
 lstm_model = ClassifyLSTM().to(device)
