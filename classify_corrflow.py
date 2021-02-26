@@ -18,9 +18,9 @@ import cv2
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def resize_image(im, desired_size):
-    old_size = im.size  # old_size[0] is in (width, height) format
-    ratio = float(desired_size)/max(old_size)
-    new_size = tuple([int(x*ratio) for x in old_size])
+    old_size = im.shape  # old_size[0] is in (width, height) format
+    ratio = float(desired_size)/max(old_size[:2])
+    new_size = tuple([int(x*ratio) for x in old_size[:2]])
     new_im = Image.new("RGB", (desired_size, desired_size))
     new_im.paste(im, ((desired_size-new_size[0])//2, (desired_size-new_size[1])//2))
     return new_im
