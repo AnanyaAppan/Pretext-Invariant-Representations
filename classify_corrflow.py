@@ -18,6 +18,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 def resize_image(im, desired_size):
     old_size = im.size  # old_size[0] is in (width, height) format
+    print(old_size)
     ratio = float(desired_size)/max(old_size)
     new_size = tuple([int(x*ratio) for x in old_size])
     new_im = Image.new("RGB", (desired_size, desired_size))
