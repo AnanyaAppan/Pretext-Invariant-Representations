@@ -21,7 +21,7 @@ class Colorizer(nn.Module):
 
     def prep(self, image):
         _,c,_,_ = image.size()
-        x = F.interpolate(image.float(), scale_factor=(1/self.D), mode='bilinear')
+        x = F.interpolate(image.float(), scale_factor=(1/self.D), mode='bilinear',align_corners=True)
         if c == 1:
             x = one_hot(x.long(), self.C)
         return x
