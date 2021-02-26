@@ -29,10 +29,10 @@ def resize_image(im, desired_size):
 
 
 def image_loader(path):
-    image = Image.open(path)
+    image = cv2.imread(path)
     image = np.float32(image) / 255.0
-    image = resize_image(image,256)
-    # image = cv2.resize(image, (256, 256))
+    # image = resize_image(image,256)
+    image = cv2.resize(image, (256, 256))
     return image
 
 def quantized_color_preprocess(image, centroids):
