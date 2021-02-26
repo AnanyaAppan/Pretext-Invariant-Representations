@@ -53,7 +53,7 @@ class SSBDataset(Dataset):
     def __init__(self, video_path='../../SSBD/ssbd_clip_segment/'):
         self.video_path = video_path
         self.normalize = torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        self.centroids = np.load('data/centroids_16k_kinetics_10000samples.npy')
+        self.centroids = np.load('./data/centroids_16k_kinetics_10000samples.npy',allow_pickle=True)
         self._add_videos()
 
     def get_subset(self,arr):
