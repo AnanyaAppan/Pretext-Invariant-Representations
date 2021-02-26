@@ -102,7 +102,9 @@ class ClassifyLSTM(nn.Module):
     def forward(self, x_rgb, x_quantized):
         batch_sz, seq_len, c, h, w = x_rgb.shape
         ii = 0
+        print("in forward!")
         y = self.baseModel((x_rgb[:,ii]),(x_quantized[:,ii]),(x_rgb[:,ii+1]))
+        print("got output of base model")
         print(y.shape)
         out, (hn, cn) = self.lstm_layer(y.unsqueeze(1))
         for ii in range(1, seq_len-1):
