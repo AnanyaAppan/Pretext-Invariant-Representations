@@ -118,7 +118,7 @@ class ClassifyLSTM(nn.Module):
             y = self.baseModel((x_rgb[:,ii]),(x_quantized[:,ii]),(x_rgb[:,ii+1]))
             y = self.conv1(y)
             y = self.conv2(y)
-            y = y.view(-1, 128 * 16 * 16)
+            y = y.view(-1, 128 * 4 * 4)
             y = self.fc1(y)
             out, (hn, cn) = self.lstm_layer(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:,-1])
