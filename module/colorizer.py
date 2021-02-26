@@ -27,6 +27,7 @@ class Colorizer(nn.Module):
         return x
 
     def forward(self, feats_r, feats_t, quantized_r):
+        print("in forward of colorizer")
         b,c,h,w = quantized_r.size()
 
         r = self.prep(quantized_r)
@@ -36,10 +37,11 @@ class Colorizer(nn.Module):
         _,_,_,h1,w1 = corr.size()
 
         corr[corr == 0] = -1e10  # discount padding at edge for softmax
+        print("before colorizer reshape")
         corr = corr.reshape([b, self.P*self.P, h1*w1])
         corr = F.softmax(corr, dim=1)
         corr = corr.unsqueeze(1)
-
+        print("before colorizer unfold")
         image_uf = F.unfold(r, kernel_size=self.P)
         image_uf = image_uf.reshape([b,self.C,self.P*self.P,h1*w1])
 

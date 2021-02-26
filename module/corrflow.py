@@ -18,6 +18,7 @@ class CorrFlow(nn.Module):
         self.colorizer = Colorizer()
 
     def forward(self, rgb_r, quantized_r, rgb_t):
+        print("in forward of corr flow")
         feats_r = self.post_convolution(self.feature_extraction(rgb_r))
         feats_t = self.post_convolution(self.feature_extraction(rgb_t))
 
