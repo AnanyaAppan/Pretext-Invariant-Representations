@@ -43,6 +43,6 @@ class Colorizer(nn.Module):
         image_uf = F.unfold(r, kernel_size=self.P)
         image_uf = image_uf.reshape([b,self.C,self.P*self.P,h1*w1])
 
-        out = (corr * image_uf).sum(2).reshape([b,self.C,h1,w1])
+        out = (corr.cuda() * image_uf).sum(2).reshape([b,self.C,h1,w1])
 
         return out
