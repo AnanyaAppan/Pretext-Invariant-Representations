@@ -94,8 +94,8 @@ class ClassifyLSTM(nn.Module):
             model_dict[key[7:]] = checkpoint[key]
         self.baseModel.load_state_dict(model_dict)
         self.dropout = nn.Dropout(dr_rate)
-        self.conv1 = nn.Conv2d(in_channels = 16,out_channels = 64,kernel_size = 4)
-        self.conv2 = nn.Conv2d(in_channels = 64,out_channels = 128,kernel_size = 4)
+        self.conv1 = nn.Conv2d(in_channels = 16,out_channels = 64,kernel_size = 4,stride=4)
+        self.conv2 = nn.Conv2d(in_channels = 64,out_channels = 128,kernel_size = 4,stride=4)
         self.fc1 = nn.Linear(128*16*16,128)
         self.lstm_layer = nn.LSTM(128, 256, 10)
         self.fc2 = nn.Linear(256,128)
