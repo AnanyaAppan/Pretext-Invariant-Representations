@@ -17,21 +17,9 @@ import cv2
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def resize_image(im, desired_size):
-    old_size = im.shape  # old_size[0] is in (width, height) format
-    ratio = float(desired_size)/max(old_size[:2])
-    new_size = tuple([int(x*ratio) for x in old_size[:2]])
-    print(new_size)
-    im = im.resize(new_size, Image.ANTIALIAS)
-    new_im = Image.new("RGB", (desired_size, desired_size))
-    new_im.paste(im, ((desired_size-new_size[0])//2, (desired_size-new_size[1])//2))
-    return new_im
-
-
 def image_loader(path):
     image = cv2.imread(path)
     image = np.float32(image) / 255.0
-    # image = resize_image(image,256)
     image = cv2.resize(image, (256, 256))
     return image
 
@@ -90,8 +78,7 @@ class SSBDataset(Dataset):
             # image = torchvision.transforms.functional.to_tensor(image)
             # image = self.normalize(image)
             # video_ret.append(image)
-        video_ret = [images_rgb,images_quantized]
-        return (torch.stack(video_ret),label)
+        return (torch.stack(images_rgb),torch.stack(images_quantized),label)
 
 class ClassifyLSTM(nn.Module):
     def __init__(self, dr_rate=0.5):
