@@ -13,6 +13,7 @@ from skimage import io
 from PIL import Image
 from module.corrflow import CorrFlow
 import glob
+import cv2
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
