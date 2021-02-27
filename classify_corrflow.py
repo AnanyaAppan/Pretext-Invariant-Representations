@@ -139,7 +139,7 @@ optimizer = optim.SGD(lstm_model.parameters(), lr=1e-4, momentum=0.9)
 # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
-checkpoint_save_folder = "../classify_corrflow/"
+checkpoint_save_folder = "./classify_corrflow/"
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=8)
 for epoch in range(50):
     print("Epoch = ", epoch)
