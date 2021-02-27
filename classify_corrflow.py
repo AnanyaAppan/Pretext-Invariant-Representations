@@ -59,7 +59,7 @@ class SSBDataset(Dataset):
         self.spinning_videos = [sorted(glob.glob(j + '/*.png'))[:100] for j in sorted(glob.glob(self.video_path+'Spinning/*'))]
         self.arm_flapping_videos = list(zip(self.arm_flapping_videos,[0]*len(self.arm_flapping_videos)))
         self.head_banging_videos = list(zip(self.head_banging_videos,[1]*len(self.head_banging_videos)))
-        self.spinning_videos = list(zip(self.spinning_videos,[1]*len(self.spinning_videos)))
+        self.spinning_videos = list(zip(self.spinning_videos,[2]*len(self.spinning_videos)))
         self.videos = self.arm_flapping_videos + self.head_banging_videos + self.spinning_videos
 
     def __len__(self):
