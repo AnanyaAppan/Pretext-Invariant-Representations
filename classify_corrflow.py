@@ -14,8 +14,46 @@ from PIL import Image
 from module.corrflow import CorrFlow
 import glob
 import cv2
+from torch.utils.tensorboard import SummaryWriter
+
+writer = SummaryWriter('runs/classify_corrflow_1')
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+# helper functions
+
+def images_to_probs(net, images):
+    '''
+    Generates predictions and corresponding probabilities from a trained
+    network and a list of images
+    '''
+    output = net(images)
+    # convert output probabilities to predicted class
+    _, preds_tensor = torch.max(output, 1)
+    preds = np.squeeze(preds_tensor.numpy())
+    return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, output)]
+
+
+def plot_classes_preds(net, images, labels):
+    '''
+    Generates matplotlib Figure using a trained network, along with images
+    and labels from a batch, that shows the network's top prediction along
+    with its probability, alongside the actual label, coloring this
+    information based on whether the prediction was correct or not.
+    Uses the "images_to_probs" function.
+    '''
+    preds, probs = images_to_probs(net, images)
+    # plot the images in the batch, along with predicted and true labels
+    fig = plt.figure(figsize=(12, 48))
+    for idx in np.arange(4):
+        ax = fig.add_subplot(1, 4, idx+1, xticks=[], yticks=[])
+        matplotlib_imshow(images[idx], one_channel=True)
+        ax.set_title("{0}, {1:.1f}%\n(label: {2})".format(
+            classes[preds[idx]],
+            probs[idx] * 100.0,
+            classes[labels[idx]]),
+                    color=("green" if preds[idx]==labels[idx].item() else "red"))
+    return fig
 
 def image_loader(path):
     image = cv2.imread(path)
@@ -134,14 +172,14 @@ for name, param in lstm_model.named_parameters():
     if param.requires_grad:
         if 'baseModel' in name : param.requires_grad = False
 optimizer = optim.SGD(lstm_model.parameters(), lr=1e-4, momentum=0.9)
-# checkpoint = torch.load("../classify/epoch_49.pth")
-# lstm_model.load_state_dict(checkpoint['model_state_dict'])
-# optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+checkpoint = torch.load("./classify_corrflow/epoch_49.pth")
+lstm_model.load_state_dict(checkpoint['model_state_dict'])
+optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 criterion = nn.CrossEntropyLoss()
 trainset = SSBDataset()
 checkpoint_save_folder = "./classify_corrflow/"
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=8)
-for epoch in range(50):
+for epoch in range(50,150):
     print("Epoch = ", epoch)
     lstm_model.train()
     time1 = time.time()
@@ -181,3 +219,10 @@ for epoch in range(50):
     print('epoch {}, total time {:.2f}'.format(epoch, time2 - time1))
     print('loss{}'.format(running_loss/len(trainloader)))
     print('accuracy{}'.format(100 * float(correct) / total))
+    if epoch % 5 == 0:    
+            writer.add_scalar('training loss',
+                            running_loss/len(trainloader),
+                            epoch)
+            writer.add_scalar('accuracy',
+                            100 * float(correct) / total,
+                            epoch)
